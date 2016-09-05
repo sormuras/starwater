@@ -10,10 +10,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -38,14 +39,17 @@ public class DownAllStereo {
   }
 
   public static void main(String[] args) throws Exception {
-    Date date = Calendar.getInstance().getTime();
+    Instant now = Instant.now();
+    System.out.println(now);
+    OffsetDateTime odt = OffsetDateTime.ofInstant(now, ZoneOffset.UTC);
+    System.out.println(odt);
 
-    SimpleDateFormat uriformat = new SimpleDateFormat("yyyy/MM/dd");
-    SimpleDateFormat fileformat = new SimpleDateFormat("yyyy-MM-dd");
+    DateTimeFormatter uriformat = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+    DateTimeFormatter fileformat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     URL website =
         new URL(
-            "http://stereo.gsfc.nasa.gov/browse/" + uriformat.format(date) + "/ahead/cor2/512/");
+            "http://stereo.gsfc.nasa.gov/browse/" + odt.format(uriformat) + "/ahead/cor2/512/");
     try (InputStream in = website.openStream()) {
       Files.copy(in, Paths.get("512.html"), StandardCopyOption.REPLACE_EXISTING);
     }
@@ -53,11 +57,11 @@ public class DownAllStereo {
         extractUrlsFromString(String.join("\n", Files.readAllLines(Paths.get("512.html"))));
 
     System.out.println("Found " + urls.size() + " images linked in " + website);
-    Path target = Paths.get("images", fileformat.format(date));
+    Path target = Paths.get("images", odt.format(fileformat));
     Files.createDirectories(target);
 
     AnimatedGIFWriter writer = new AnimatedGIFWriter(true);
-    OutputStream os = new FileOutputStream(fileformat.format(date) + "-ahead-cor2-512.gif");
+    OutputStream os = new FileOutputStream(odt.format(fileformat) + "-ahead-cor2-512.gif");
     writer.prepareForWrite(os, -1, -1);
 
     for (String spec : urls) {
@@ -65,10 +69,11 @@ public class DownAllStereo {
       Path jpg = target.resolve(spec);
       System.out.println(spec + " -> " + url);
       if (!jpg.toFile().exists()) {
-        System.out.println(" already downloaded.");
+        System.out.print(" Downloading...");
         try (InputStream in = url.openStream()) {
           Files.copy(in, jpg, StandardCopyOption.REPLACE_EXISTING);
         }
+        System.out.println(" [done]");
       }
 
         FileInputStream fin = new FileInputStream(jpg.toFile());
