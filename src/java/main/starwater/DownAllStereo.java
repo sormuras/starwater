@@ -47,23 +47,30 @@ public class DownAllStereo {
     DateTimeFormatter uriformat = DateTimeFormatter.ofPattern("yyyy/MM/dd");
     DateTimeFormatter fileformat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    URL website =
-        new URL(
-            "http://stereo.gsfc.nasa.gov/browse/" + odt.format(uriformat) + "/ahead/cor2/512/");
+    String camera = "cor2";
+    // String camera = "euvi/195";
+
+    // String size = "512";
+    String size = "1024";
+
+    URL website = new URL("http://stereo.gsfc.nasa.gov/browse/" + odt.format(uriformat) + "/ahead/"
+        + camera + "/" + size + "/");
     try (InputStream in = website.openStream()) {
-      Files.copy(in, Paths.get("512.html"), StandardCopyOption.REPLACE_EXISTING);
+      Files.copy(in, Paths.get(size + ".html"), StandardCopyOption.REPLACE_EXISTING);
     }
     List<String> urls =
-        extractUrlsFromString(String.join("\n", Files.readAllLines(Paths.get("512.html"))));
+        extractUrlsFromString(String.join("\n", Files.readAllLines(Paths.get(size + ".html"))));
 
     System.out.println("Found " + urls.size() + " images linked in " + website);
     Path target = Paths.get("images", odt.format(fileformat));
     Files.createDirectories(target);
 
     AnimatedGIFWriter writer = new AnimatedGIFWriter(true);
-    OutputStream os = new FileOutputStream(odt.format(fileformat) + "-ahead-cor2-512.gif");
+    OutputStream os = new FileOutputStream(
+        odt.format(fileformat) + "-ahead-" + camera.replace('/', '-') + "-" + size + ".gif");
     writer.prepareForWrite(os, -1, -1);
 
+    int index = 0;
     for (String spec : urls) {
       URL url = new URL(website, spec);
       Path jpg = target.resolve(spec);
@@ -75,11 +82,15 @@ public class DownAllStereo {
         }
         System.out.println(" [done]");
       }
+      index++;
 
-        FileInputStream fin = new FileInputStream(jpg.toFile());
-        BufferedImage image = javax.imageio.ImageIO.read(fin);
-        fin.close();
-        writer.writeFrame(os, image);
+      // if (index < 20)
+      // continue;
+
+      FileInputStream fin = new FileInputStream(jpg.toFile());
+      BufferedImage image = javax.imageio.ImageIO.read(fin);
+      fin.close();
+      writer.writeFrame(os, image);
 
       System.out.println(" Added " + jpg.toFile().length() + " bytes.");
     }
