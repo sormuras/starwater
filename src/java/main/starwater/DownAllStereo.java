@@ -53,8 +53,8 @@ public class DownAllStereo {
     // String size = "512";
     String size = "1024";
 
-    URL website = new URL("http://stereo.gsfc.nasa.gov/browse/" + odt.format(uriformat) + "/ahead/"
-        + camera + "/" + size + "/");
+    URL website = new URL("https://stereo.gsfc.nasa.gov/browse/" + odt.format(uriformat) + "/ahead/"
+        + camera + "/" + size + "/index.shtml");
     try (InputStream in = website.openStream()) {
       Files.copy(in, Paths.get(size + ".html"), StandardCopyOption.REPLACE_EXISTING);
     }
