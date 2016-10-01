@@ -1,6 +1,7 @@
 package starwater;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -66,8 +67,9 @@ public class DownAllStereo {
     Files.createDirectories(target);
 
     AnimatedGIFWriter writer = new AnimatedGIFWriter(true);
-    OutputStream os = new FileOutputStream(
+    File file = new File(
         odt.format(fileformat) + "-ahead-" + camera.replace('/', '-') + "-" + size + ".gif");
+    OutputStream os = new FileOutputStream(file);
     writer.prepareForWrite(os, -1, -1);
 
     int index = 0;
@@ -97,6 +99,7 @@ public class DownAllStereo {
 
     writer.finishWrite(os);
     os.close();
+    System.out.println("Created: " + file.getAbsolutePath());
   }
 
 }
