@@ -43,6 +43,7 @@ public class DownAllStereo {
     Instant now = Instant.now();
     System.out.println(now);
     OffsetDateTime odt = OffsetDateTime.ofInstant(now, ZoneOffset.UTC);
+    // OffsetDateTime odt = OffsetDateTime.ofInstant(now, ZoneOffset.UTC).minusDays(1);
     System.out.println(odt);
 
     DateTimeFormatter uriformat = DateTimeFormatter.ofPattern("yyyy/MM/dd");
