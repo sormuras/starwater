@@ -22,10 +22,8 @@ import java.util.regex.Pattern;
 
 public class DownAllStereo {
 
-
-
   // <a href="20160830_193924_d7c2A.jpg">20160830_193924_d7c2A.jpg</a>
-  public static List<String> extractUrlsFromString(String content) {
+  private static List<String> extractUrlsFromString(String content) {
     List<String> result = new ArrayList<>();
 
     String regex = "HREF=\"(.*jpg?)\"";
@@ -55,8 +53,15 @@ public class DownAllStereo {
     // String size = "512";
     String size = "1024";
 
-    URL website = new URL("https://stereo.gsfc.nasa.gov/browse/" + odt.format(uriformat) + "/ahead/"
-        + camera + "/" + size + "/index.shtml");
+    URL website =
+        new URL(
+            "https://stereo.gsfc.nasa.gov/browse/"
+                + odt.format(uriformat)
+                + "/ahead/"
+                + camera
+                + "/"
+                + size
+                + "/index.shtml");
     try (InputStream in = website.openStream()) {
       Files.copy(in, Paths.get(size + ".html"), StandardCopyOption.REPLACE_EXISTING);
     }
@@ -68,8 +73,9 @@ public class DownAllStereo {
     Files.createDirectories(target);
 
     AnimatedGIFWriter writer = new AnimatedGIFWriter(true);
-    File file = new File(
-        odt.format(fileformat) + "-ahead-" + camera.replace('/', '-') + "-" + size + ".gif");
+    File file =
+        new File(
+            odt.format(fileformat) + "-ahead-" + camera.replace('/', '-') + "-" + size + ".gif");
     OutputStream os = new FileOutputStream(file);
     writer.prepareForWrite(os, -1, -1);
 
@@ -95,12 +101,11 @@ public class DownAllStereo {
       fin.close();
       writer.writeFrame(os, image);
 
-      System.out.println(" Added " + jpg.toFile().length() + " bytes.");
+      System.out.println(" Added " + jpg.toFile().length() + " bytes with index " + index);
     }
 
     writer.finishWrite(os);
     os.close();
     System.out.println("Created: " + file.getAbsolutePath());
   }
-
 }
